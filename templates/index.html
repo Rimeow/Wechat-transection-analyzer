@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}?v=1.1">
+    <script src="{{ url_for('static', filename='js/sidebar.js') }}?v=1.1" defer></script>
+    <title>微信流水分析工具</title>
+    <style>
+        /* 样式保持不变 */
+        :root {
+            --primary-color: #4a5568;
+            --hover-color: #2d3748;
+            --light-bg: #f7fafc;
+            --border-color: #e2e8f0;
+            --sidebar-width: 280px;
+            --header-height: 60px;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: var(--light-bg);
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+        /* 侧边栏样式 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: white;
+            border-right: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            padding: 20px 0;
+            overflow-y: auto;
+            transition: var(--transition);
+            height: 100vh;
+            position: fixed;
+            z-index: 1000;
+        }
+        .sidebar-header {
+            padding: 0 20px 15px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .sidebar-subtitle {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 5px;
+        }
+        .report-list {
+            list-style: none;
+        }
+        .report-item {
+            margin: 0 10px 15px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-color);
+            transition: var(--transition);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .report-item:hover {
+            background-color: #edf2f7;
+            transform: translateX(5px);
+        }
+        .report-name {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 4px;
+            color: #2d3748;
+        }
+        .report-date {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+        .report-files {
+            margin-top: 8px;
+        }
+        .file-link {
+            display: block;
+            font-size: 14px;
+            padding: 5px 0;
+            color: #4299e1;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .file-link:hover {
+            color: #3182ce;
+            text-decoration: underline;
+        }
+        .toggle-sidebar {
+            position: fixed;
+            left: var(--sidebar-width);
+            top: 20px;
+            z-index: 1001;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-left: none;
+            border-radius: 0 4px 4px 0;
+            padding: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar-hidden .toggle-sidebar {
+            left: 0;
+        }
+        .sidebar-hidden .sidebar {
+            transform: translateX(-100%);
+        }
+        .sidebar-hidden .main-content {
+            margin-left: 0;
+        }
+        /* 主内容区域样式 */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .upload-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .upload-description {
+            margin-bottom: 25px;
+            color: #718096;
+            font-size: 16px;
+        }
+        .file-upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 6px;
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .file-upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(74, 85, 104, 0.05);
+        }
+        .file-upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        .file-upload-text {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .file-upload-info {
+            font-size: 14px;
+            color: #718096;
+        }
+        #zip-upload, #pdf-upload {
+            display: none;
+        }
+        .file-selected-name {
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #edf2f7;
+            border-radius: 4px;
+            font-size: 14px;
+            display: none;
+        }
+        .upload-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .upload-button:hover {
+            background-color: var(--hover-color);
+        }
+        .upload-button:disabled {
+            background-color: #cbd5e0;
+            cursor: not-allowed;
+        }
+        .flash-messages {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+        .flash-message {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .flash-message.success {
+            background-color: #c6f6d5;
+            color: #276749;
+        }
+        .flash-message.error {
+            background-color: #fed7d7;
+            color: #c53030;
+        }
+        /* 加载中动画 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 9999;
+            display: none;
+        }
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        .loading-text {
+            margin-top: 15px;
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 240px;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .toggle-sidebar {
+                left: 0;
+            }
+            body.sidebar-visible .sidebar {
+                transform: translateX(0);
+            }
+            body.sidebar-visible .main-content {
+                margin-left: 0;
+            }
+            body.sidebar-visible .toggle-sidebar {
+                left: 240px;
+            }
+            .upload-container {
+                padding: 20px;
+            }
+            .upload-tabs {
+                flex-direction: column;
+            }
+            .tab-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+        /* 没有报告时的提示 */
+        .no-reports {
+            padding: 20px;
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+        }
+        /* 刷新按钮 */
+        .refresh-btn {
+            background-color: transparent;
+            border: none;
+            color: #4299e1;
+            cursor: pointer;
+            margin-left: 5px;
+            font-size: 14px;
+        }
+        .refresh-btn:hover {
+            color: #3182ce;
+        }
+        /* 加载中图标 */
+        .loading-icon {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #cbd5e0;
+            border-radius: 50%;
+            border-top-color: #4299e1;
+            animation: spin 1s linear infinite;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        /* 添加选项卡样式 */
+        .upload-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+        .tab-btn.active {
+            border-bottom-color: var(--primary-color);
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+            padding: 15px 0;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* 文件项样式 */
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        .file-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        .file-icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        .file-name {
+            font-size: 14px;
+            color: #333;
+        }
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .file-action {
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+        }
+        .preview-action {
+            background-color: #e6f2ff;
+            color: #0066cc;
+        }
+        .preview-action:hover {
+            background-color: #cce0ff;
+        }
+        .download-action {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .download-action:hover {
+            background-color: #c8e6c9;
+        }
+        .action-icon {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">历史报告</div>
+            <div class="sidebar-subtitle">
+                已分析的报告
+                <button id="refresh-reports" class="refresh-btn" title="刷新报告列表">🔄</button>
+                <span id="loading-reports" class="loading-icon" style="display: none;"></span>
+            </div>
+        </div>
+        <ul id="report-list" class="report-list">
+            <li class="no-reports">加载中...</li>
+        </ul>
+    </div>
+    <!-- 侧边栏切换按钮 -->
+    <button class="toggle-sidebar" id="toggle-sidebar">≡</button>
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        <div class="upload-container">
+            <h1>微信流水分析工具</h1>
+            <!-- 添加选项卡 -->
+            <div class="upload-tabs">
+                <button type="button" class="tab-btn active" data-tab="zip-tab">报告压缩包（.zip文件）</button>
+                <button type="button" class="tab-btn" data-tab="pdf-tab">微信支付交易明细证明（.pdf文件）</button>
+            </div>
+            <!-- ZIP上传区域 -->
+            <div id="zip-tab" class="tab-content active">
+                <p class="upload-description">上传取证报告压缩包文件进行分析处理</p>
+                <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" id="zip-upload-form">
+                    <div class="file-upload-area" id="zip-upload-area">
+                        <div class="file-upload-icon">
+                        <img src="{{ url_for('static', filename='image/zip_icon.svg') }}" alt="上传图标" style="width: 48px; height: 48px;">
+                        </div>
+                        <p class="file-upload-text">点击或拖拽ZIP文件到此区域</p>
+                        <p class="file-upload-info">支持 .zip 格式文件</p>
+                        <input type="file" name="file" id="zip-upload" accept=".zip">
+                    </div>
+                    <div id="zip-selected-name" class="file-selected-name"></div>
+                    <button type="submit" class="upload-button" id="zip-upload-button" disabled>开始分析</button>
+                </form>
+            </div>
+            <!-- PDF上传区域 -->
+            <div id="pdf-tab" class="tab-content">
+                <p class="upload-description">上传微信支付交易明细证明PDF转换为Excel</p>
+                <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" id="pdf-upload-form">
+                    <div class="file-upload-area" id="pdf-upload-area">
+                        <div class="file-upload-icon">
+                        <img src="{{ url_for('static', filename='image/pdf_icon.svg') }}" alt="上传图标" style="width: 48px; height: 48px;">
+                        </div>
+                        <p class="file-upload-text">点击或拖拽PDF文件到此区域</p>
+                        <p class="file-upload-info">支持 .pdf 格式文件</p>
+                        <input type="file" name="file" id="pdf-upload" accept=".pdf">
+                    </div>
+                    <div id="pdf-selected-name" class="file-selected-name"></div>
+                    <button type="submit" class="upload-button" id="pdf-upload-button" disabled>开始转换</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- 加载中遮罩 -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在上传文件，请稍候...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取所有需要的元素
+            const toggleSidebar = document.getElementById('toggle-sidebar');
+            const refreshReports = document.getElementById('refresh-reports');
+            const loadingReports = document.getElementById('loading-reports');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const tabBtns = document.querySelectorAll('.tab-btn');
+
+            // ZIP上传相关元素
+            const zipUpload = document.getElementById('zip-upload');
+            const zipUploadArea = document.getElementById('zip-upload-area');
+            const zipSelectedName = document.getElementById('zip-selected-name');
+            const zipUploadButton = document.getElementById('zip-upload-button');
+            const zipUploadForm = document.getElementById('zip-upload-form');
+
+            // PDF上传相关元素
+            const pdfUpload = document.getElementById('pdf-upload');
+            const pdfUploadArea = document.getElementById('pdf-upload-area');
+            const pdfSelectedName = document.getElementById('pdf-selected-name');
+            const pdfUploadButton = document.getElementById('pdf-upload-button');
+            const pdfUploadForm = document.getElementById('pdf-upload-form');
+
+            // 初始加载报告列表
+            loadReportList();
+
+            // 刷新报告列表
+            refreshReports.addEventListener('click', function() {
+                loadReportList();
+            });
+
+            // 切换侧边栏
+            toggleSidebar.addEventListener('click', function() {
+                document.body.classList.toggle('sidebar-hidden');
+            });
+
+            // 在小屏幕上默认隐藏侧边栏
+            if (window.innerWidth <= 768) {
+                document.body.classList.add('sidebar-hidden');
+            }
+
+            // 选项卡切换功能
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有active类
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                    // 添加active类到当前选项卡
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            // ZIP文件上传处理
+            zipUploadArea.addEventListener('click', function() {
+                zipUpload.click();
+            });
+
+            zipUpload.addEventListener('change', function() {
+                handleFileSelect(zipUpload, zipSelectedName, zipUploadButton, '.zip');
+            });
+
+            // ZIP文件拖拽处理
+            setupDragAndDrop(zipUploadArea, zipUpload, zipSelectedName, zipUploadButton, '.zip');
+
+            // ZIP表单提交
+            zipUploadForm.addEventListener('submit', function(e) {
+                loadingOverlay.style.display = 'flex';
+            });
+
+            // PDF文件上传处理
+            pdfUploadArea.addEventListener('click', function() {
+                pdfUpload.click();
+            });
+
+            pdfUpload.addEventListener('change', function() {
+                handleFileSelect(pdfUpload, pdfSelectedName, pdfUploadButton, '.pdf');
+            });
+
+            // PDF文件拖拽处理
+            setupDragAndDrop(pdfUploadArea, pdfUpload, pdfSelectedName, pdfUploadButton, '.pdf');
+
+            // PDF表单提交
+            pdfUploadForm.addEventListener('submit', function(e) {
+                loadingOverlay.style.display = 'flex';
+            });
+
+            // 处理文件选择的通用函数
+            function handleFileSelect(fileInput, fileNameDisplay, uploadButton, expectedExtension) {
+                if (fileInput.files.length) {
+                    const file = fileInput.files[0];
+                    const fileName = file.name;
+
+                    if (!fileName.toLowerCase().endsWith(expectedExtension)) {
+                        fileNameDisplay.textContent = `错误: 只支持${expectedExtension.toUpperCase()}格式文件`;
+                        fileNameDisplay.style.display = 'block';
+                        fileNameDisplay.style.backgroundColor = '#fed7d7';
+                        uploadButton.disabled = true;
+                        return;
+                    }
+
+                    fileNameDisplay.textContent = `已选择: ${fileName}`;
+                    fileNameDisplay.style.display = 'block';
+                    fileNameDisplay.style.backgroundColor = '#c6f6d5';
+                    uploadButton.disabled = false;
+                } else {
+                    fileNameDisplay.style.display = 'none';
+                    uploadButton.disabled = true;
+                }
+            }
+
+            // 设置拖拽功能的通用函数
+            function setupDragAndDrop(uploadArea, fileInput, fileNameDisplay, uploadButton, expectedExtension) {
+                uploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    uploadArea.style.borderColor = '#4a5568';
+                    uploadArea.style.backgroundColor = 'rgba(74, 85, 104, 0.05)';
+                });
+
+                uploadArea.addEventListener('dragleave', function() {
+                    uploadArea.style.borderColor = '';
+                    uploadArea.style.backgroundColor = '';
+                });
+
+                uploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    uploadArea.style.borderColor = '';
+                    uploadArea.style.backgroundColor = '';
+
+                    const files = e.dataTransfer.files;
+                    if (files.length) {
+                        fileInput.files = files;
+                        handleFileSelect(fileInput, fileNameDisplay, uploadButton, expectedExtension);
+                    }
+                });
+            }
+
+            // 加载历史报告列表
+            function loadReportList() {
+                const reportList = document.getElementById('report-list');
+                loadingReports.style.display = 'inline-block';
+
+                fetch('/api/reports')
+                    .then(response => response.json())
+                    .then(data => {
+                        loadingReports.style.display = 'none';
+                        reportList.innerHTML = '';
+
+                        if (data.length === 0) {
+                            reportList.innerHTML = '<li class="no-reports">还没有分析过的报告</li>';
+                            return;
+                        }
+
+                        data.forEach(report => {
+                            const reportItem = document.createElement('li');
+                            reportItem.className = 'report-item';
+
+                            let formattedDate = '';
+                            if (report.timestamp) {
+                                const date = new Date(report.timestamp);
+                                formattedDate = date.toLocaleString('zh-CN', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                });
+                            }
+
+                            reportItem.innerHTML = `
+                                <div class="report-name">${report.name}</div>
+                                <div class="report-date">${formattedDate}</div>
+                                <div class="report-files">
+                                    ${report.files.map(file => `
+                                        <div class="file-item">
+                                            <div class="file-info">
+                                                <span class="file-icon">📄</span>
+                                                <span class="file-name">${file.name}</span>
+                                            </div>
+                                            <div class="file-actions">
+                                                <a href="${file.preview_url}" class="file-action preview-action" title="预览">
+                                                    <span class="action-icon">🔍</span>
+                                                </a>
+                                                <a href="/download/report/${encodeURIComponent(report.name)}/${encodeURIComponent(file.name)}"
+                                                   class="file-action download-action" title="下载" download>
+                                                    <span class="action-icon">⬇️</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                            reportList.appendChild(reportItem);
+                        });
+                    })
+                    .catch(error => {
+                        loadingReports.style.display = 'none';
+                        reportList.innerHTML = `<li class="no-reports">加载失败: ${error.message}</li>`;
+                        console.error('Error loading reports:', error);
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

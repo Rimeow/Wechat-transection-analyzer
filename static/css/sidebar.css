@@ -1,0 +1,279 @@
+/* 侧边栏样式 */
+.sidebar {
+    width: var(--sidebar-width, 280px);
+    background-color: white;
+    border-right: 1px solid var(--border-color, #e2e8f0);
+    box-shadow: var(--shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
+    padding: 20px 0;
+    overflow-y: auto;
+    transition: var(--transition, all 0.3s ease);
+    height: 100vh;
+    position: fixed;
+    z-index: 1000;
+}
+
+.sidebar-header {
+    padding: 0 20px 15px;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    margin-bottom: 15px;
+}
+
+.sidebar-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--primary-color, #4a5568);
+}
+
+.sidebar-subtitle {
+    font-size: 14px;
+    color: #718096;
+    margin-top: 5px;
+}
+
+.report-list {
+    list-style: none;
+}
+
+.report-item {
+    margin: 0 10px 15px;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid var(--primary-color, #4a5568);
+    transition: var(--transition, all 0.3s ease);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    overflow: hidden; /* 防止内容溢出 */
+}
+
+.report-item.pdf-task {
+    background-color: #fee2e2; /* 淡红色 */
+    border-left-color: #ef4444; /* 红色边框 */
+}
+.report-item.pdf-task:hover {
+    background-color: #fecaca;
+}
+/* ZIP任务样式 - 淡蓝色背景 */
+.report-item.zip-task {
+    background-color: #dbeafe; /* 淡蓝色 */
+    border-left-color: #3b82f6; /* 蓝色边框 */
+}
+.report-item.zip-task:hover {
+    background-color: #bfdbfe;
+}
+/* 任务类型标签 */
+.task-type-tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 8px;
+    font-weight: normal;
+    vertical-align: middle;
+}
+.task-type-tag.pdf {
+    background-color: #ef4444;
+    color: white;
+}
+.task-type-tag.zip {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.report-item:hover {
+    background-color: #edf2f7;
+    transform: translateX(5px);
+}
+
+.report-name {
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 4px;
+    color: #2d3748;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.report-date {
+    font-size: 12px;
+    color: #718096;
+    margin-bottom: 8px;
+}
+
+.report-files {
+    margin-top: 8px;
+}
+
+.file-link {
+    display: block;
+    font-size: 14px;
+    padding: 5px 0;
+    color: #4299e1;
+    text-decoration: none;
+    transition: var(--transition, all 0.3s ease);
+}
+
+.file-link:hover {
+    color: #3182ce;
+    text-decoration: underline;
+}
+
+.toggle-sidebar {
+    position: fixed;
+    left: var(--sidebar-width, 280px);
+    top: 20px;
+    z-index: 1001;
+    background-color: white;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    padding: 8px;
+    cursor: pointer;
+    transition: var(--transition, all 0.3s ease);
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-hidden .toggle-sidebar {
+    left: 0;
+}
+
+.sidebar-hidden .sidebar {
+    transform: translateX(-100%);
+}
+
+.sidebar-hidden .main-content {
+    margin-left: 0;
+}
+
+/* 没有报告时的提示 */
+.no-reports {
+    padding: 20px;
+    text-align: center;
+    color: #718096;
+    font-style: italic;
+}
+
+/* 刷新按钮 */
+.refresh-btn {
+    background-color: transparent;
+    border: none;
+    color: #4299e1;
+    cursor: pointer;
+    margin-left: 5px;
+    font-size: 14px;
+}
+
+.refresh-btn:hover {
+    color: #3182ce;
+}
+
+/* 加载中图标 */
+.loading-icon {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #cbd5e0;
+    border-radius: 50%;
+    border-top-color: #4299e1;
+    animation: spin 1s linear infinite;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 240px;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .toggle-sidebar {
+        left: 0;
+    }
+
+    body.sidebar-visible .sidebar {
+        transform: translateX(0);
+    }
+
+    body.sidebar-visible .toggle-sidebar {
+        left: 240px;
+    }
+}
+
+/* 文件项的新样式 */
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    gap: 8px; /* 添加间距 */
+}
+
+.file-item:last-child {
+    border-bottom: none;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0; /* 重要：允许内容收缩 */
+    overflow: hidden; /* 防止溢出 */
+}
+
+.file-icon {
+    margin-right: 5px;
+    flex-shrink: 0; /* 图标不缩小 */
+}
+
+.file-name {
+    color: #4a5568;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0; /* 重要：允许文本收缩 */
+}
+
+.file-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0; /* 操作按钮不缩小 */
+}
+
+.file-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    color: #4a5568;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    flex-shrink: 0; /* 按钮保持固定大小 */
+}
+
+.preview-action:hover {
+    background-color: rgba(66, 153, 225, 0.1);
+    color: #3182ce;
+}
+
+.download-action:hover {
+    background-color: rgba(72, 187, 120, 0.1);
+    color: #38a169;
+}
+
+.action-icon {
+    font-size: 14px;
+}

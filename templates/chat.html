@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI聊天助手 - 微信流水分析大师</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ai_chat_integration.css') }}">
+    <style>
+        body {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            background-color: #f8f9fa;
+        }
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .info-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 隐藏字段 -->
+    <input type="hidden" id="task-id" value="">
+    <input type="hidden" id="file-name" value="">
+
+    <div class="container main-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>AI数据分析助手</h1>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">返回首页</a>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chat-interface">
+                    <div class="chat-header">
+                        智能助手
+                        <div class="model-selector">
+                            <div class="model-option active" data-model="deepseek">DeepSeek</div>
+                            <div class="model-option" data-model="ollama">Ollama</div>
+                        </div>
+                    </div>
+                    <div class="chat-container" id="chat-messages">
+                        <!-- 聊天消息将在这里动态添加 -->
+                    </div>
+                    <div class="input-container">
+                        <textarea id="user-input" placeholder="输入您的问题..."></textarea>
+                        <button id="send-button">发送</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="info-panel">
+                    <h4>使用说明</h4>
+                    <p>本AI助手可以帮助您:</p>
+                    <ul>
+                        <li>回答关于数据分析的通用问题</li>
+                        <li>解释统计学概念</li>
+                        <li>提供数据处理建议</li>
+                        <li>在数据预览页面分析具体数据</li>
+                    </ul>
+
+                    <h5 class="mt-4">模型说明</h5>
+                    <div class="mb-2">
+                        <span class="badge bg-primary">DeepSeek</span>
+                        <small class="text-muted">功能全面的大语言模型</small>
+                    </div>
+                    <div>
+                        <span class="badge bg-secondary">Ollama</span>
+                        <small class="text-muted">本地运行的轻量级模型</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 脚本 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 为独立聊天页面设置初始消息
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatContainer = document.getElementById('chat-messages');
+            if (chatContainer) {
+                const welcomeMessage = document.createElement('div');
+                welcomeMessage.className = 'message ai-message';
+
+                const modelBadge = document.createElement('span');
+                modelBadge.className = 'model-badge deepseek-badge';
+                modelBadge.textContent = 'deepseek';
+
+                const modelInfo = document.createElement('div');
+                modelInfo.className = 'model-info';
+                modelInfo.appendChild(modelBadge);
+
+                welcomeMessage.appendChild(modelInfo);
+
+                const contentSpan = document.createElement('div');
+                contentSpan.className = 'message-content';
+                contentSpan.innerHTML = '你好！我是AI助手。由于这是通用聊天页面，没有具体的数据上下文。如果你需要分析数据，请返回到数据预览页面。我可以回答关于数据分析的一般性问题！';
+                welcomeMessage.appendChild(contentSpan);
+
+                chatContainer.appendChild(welcomeMessage);
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/ai_chat_integration.js') }}"></script>
+</body>
+</html>

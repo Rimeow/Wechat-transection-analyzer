@@ -1,0 +1,13 @@
+connections:
+  周志强、蒲雄鑫等人侵犯公民个人信息案报告:
+    type: sqlite
+    path: C:/Users/qywa/Desktop/集成/database/周志强、蒲雄鑫等人侵犯公民个人信息案报告/周志强、蒲雄鑫等人侵犯公民个人信息案报告.db
+    password: 'null'
+  王龙-王龙的检材250220163314-1740099868478:
+    type: sqlite
+    path: C:/Users/qywa/Desktop/集成/database/王龙-王龙的检材250220163314-1740099868478/王龙-王龙的检材250220163314-1740099868478.db
+    password: 'null'
+  何英杰-何英杰的检材250423102106-1745400800007:
+    type: sqlite
+    path: C:/Users/qywa/Desktop/集成/database/何英杰-何英杰的检材250423102106-1745400800007/何英杰-何英杰的检材250423102106-1745400800007.db
+    password: 'null'

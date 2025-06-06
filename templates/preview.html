@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据预览 - {{ filename }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ai_chat_integration.css') }}">
+    <style>
+        body {
+            padding: 2rem 0;
+            background-color: #f8f9fa;
+        }
+        .preview-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .table {
+            font-size: 0.9rem;
+        }
+        .preview-note {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .data-stats {
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 隐藏字段用于JS获取任务ID和文件名 -->
+    <input type="hidden" id="task-id" value="{{ task_id }}">
+    <input type="hidden" id="file-name" value="{{ filename }}">
+
+    <div class="container-fluid preview-container">
+        <div class="row">
+            <!-- 左侧：数据表格 -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4>预览: {{ filename }}</h4>
+                        <a href="{{ url_for('task_status', task_id=task_id) }}" class="btn btn-outline-secondary">返回</a>
+                    </div>
+                    <div class="card-body">
+                        <p class="preview-note mb-3">显示前 {{ shown_rows }} 行，共 {{ total_rows }} 行数据。</p>
+
+                        <div class="table-responsive">
+                            {{ table | safe }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据统计信息 -->
+                <div class="card data-stats">
+                    <div class="card-header">
+                        <h5>数据统计</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        总行数
+                                        <span class="badge bg-primary rounded-pill">{{ total_rows }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle"></i> 使用右侧AI助手快速分析数据内容
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：AI聊天界面 -->
+            <div class="col-lg-4">
+                <div class="chat-interface">
+                    <div class="chat-header">
+                        AI数据分析助手
+                        <div class="model-selector">
+                            <div class="model-option active" data-model="deepseek">DeepSeek</div>
+                            <div class="model-option" data-model="ollama">Ollama</div>
+                        </div>
+                    </div>
+                    <div class="chat-container" id="chat-messages">
+                        <!-- 聊天消息将在这里动态添加 -->
+                    </div>
+                    <div class="input-container">
+                        <textarea id="user-input" placeholder="输入您的问题，例如：帮我分析这个数据的主要特点..."></textarea>
+                        <button id="send-button">发送</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加在预览页面的头部导航栏中 -->
+    <div class="header">
+        <a href="/" class="back-link">← 返回首页</a>
+        <div class="title">
+            <span class="report-name">{{ report_name }}</span>
+            <span class="file-name">{{ filename }}</span>
+        </div>
+        <div class="info">
+            显示 {{ shown_rows }} / {{ total_rows }} 行
+        </div>
+    </div>
+
+    <!-- 脚本 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/ai_chat_integration.js') }}"></script>
+
+</body>
+</html>

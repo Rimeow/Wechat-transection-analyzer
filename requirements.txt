@@ -1,0 +1,35 @@
+# 核心Web框架
+flask
+werkzeug
+
+# 数据处理与分析
+pandas
+numpy
+
+# HTML解析
+beautifulsoup4
+
+# YAML配置处理
+pyyaml
+
+# 进度条显示
+tqdm
+
+# 安全标记(用于Flask的Markup功能)
+markupsafe
+
+# HTTP请求库
+requests
+
+# 环境变量管理
+python-dotenv
+
+openpyxl
+
+pdfplumber
+
+# 系统工具(标准库依赖，不需要额外安装)、数据库支持
+#datetime json os sys re uuid shutil logging subprocess platform sqlite3
+
+
+
